@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 //import file for mongoDB
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 
@@ -42,7 +42,13 @@ async function run() {
             const result = await foodCollection.find().toArray();
             res.send(result);
         })
-
+        // to find the a single food for details page
+        app.get('/available_foods/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await foodCollection.findOne(query);
+            res.send(result)
+        })
 
 
         await client.db("admin").command({ ping: 1 });
