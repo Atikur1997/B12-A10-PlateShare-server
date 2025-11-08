@@ -50,6 +50,29 @@ async function run() {
             res.send(result)
         })
 
+        //update the product 
+        app.patch('/available_foods/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updateFood = req.body;
+            const updateFields = {};
+            if (updateFood.foodName) updateFields.foodName = updateFood.foodName;
+            if (updateFood.foodQuantity) updateFields.foodQuantity = updateFood.foodQuantity;
+            if (updateFood.pickupLocation) updateFields.pickupLocation = updateFood.pickupLocation;
+            if (updateFood.expireDate) updateFields.expireDate = updateFood.expireDate;
+            if (updateFood.foodImage) updateFields.foodImage = updateFood.foodImage;
+            if (updateFood.donatorName) updateFields.donatorName = updateFood.donatorName;
+            if (updateFood.donatorEmail) updateFields.donatorEmail = updateFood.donatorEmail;
+
+            const update = { $set: updateFields };
+
+
+
+            const result = await foodCollection.updateOne(filter, update);
+            res.send(result);
+
+        })
+
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
