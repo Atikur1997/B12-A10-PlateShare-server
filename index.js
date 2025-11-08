@@ -34,7 +34,8 @@ async function run() {
         //foods for Home Page
         app.post('/available_foods', async (req, res) => {
             const food = req.body;
-            const result = await foodCollection.insertOne(food);
+            const newFoodData = { ...food, status: 'available' }
+            const result = await foodCollection.insertOne(newFoodData);
             res.send(result);
         })
         //foods for Home Page
@@ -80,7 +81,7 @@ async function run() {
             const result = await foodCollection.deleteOne(query);
             res.send(result);
         })
-        
+
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
