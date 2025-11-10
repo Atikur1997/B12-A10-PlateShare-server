@@ -32,14 +32,14 @@ async function run() {
         const foodCollection = DB.collection('foods')
 
         //foods for Home Page
-        app.post('/available_foods', async (req, res) => {
+        app.post('/home_foods', async (req, res) => {
             const food = req.body;
             const newFoodData = { ...food, status: 'available' }
             const result = await foodCollection.insertOne(newFoodData);
             res.send(result);
         })
         //foods for Home Page
-        app.get('/available_foods', async (req, res) => {
+        app.get('/home_foods', async (req, res) => {
             const sortFields = { serves: -1 };
             const cursor = foodCollection.find().sort(sortFields).limit(6);
             const result = await cursor.toArray();
