@@ -40,7 +40,9 @@ async function run() {
         })
         //foods for Home Page
         app.get('/available_foods', async (req, res) => {
-            const result = await foodCollection.find().toArray();
+            const sortFields = { serves: -1 };
+            const cursor = foodCollection.find().sort(sortFields).limit(6);
+            const result = await cursor.toArray();
             res.send(result);
         })
         // to find the a single food for details page
@@ -83,7 +85,7 @@ async function run() {
         })
 
 
-       
+
 
 
 
