@@ -45,12 +45,19 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
-        // to find the a single food for details page
+        // to find the a sort food for home page
         app.get('/available_foods/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await foodCollection.findOne(query);
             res.send(result)
+        })
+
+        //for available foods page 
+        app.get('/available_foods', async (req, res) => {
+            const food = req.body;
+            const result = await foodCollection.find().toArray();
+            res.send(result);
         })
 
         //update the product 
