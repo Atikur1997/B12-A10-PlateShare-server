@@ -60,6 +60,14 @@ async function run() {
             res.send(result);
         })
 
+        //for available foods page 
+        app.post('/available_foods', async (req, res) => {
+            const food = req.body;
+            const newFoodData = { ...food, status: 'available' }
+            const result = await foodCollection.insertOne(newFoodData);
+            res.send(result);
+        })
+
         //update the product 
         app.patch('/available_foods/:id', async (req, res) => {
             const id = req.params.id;
@@ -108,7 +116,7 @@ async function run() {
 
 
     } finally {
-        // Ensures that the client will close when you finish/error
+        
 
     }
 }
