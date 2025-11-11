@@ -91,7 +91,17 @@ async function run() {
             res.send(result);
         })
 
+        //for requested food collection
+        app.post('/requested_foods', async (req, res) => {
+            const { foodId, userEmail, foodName } = req.body;
 
+            if (!foodId || !userEmail || !foodName) {
+                return res.status(400).send({ error: 'Missing required fields' });
+            }
+
+            const result = await requestedFoodCollection.insertOne(req.body);
+            res.send(result);
+        });
 
 
 
