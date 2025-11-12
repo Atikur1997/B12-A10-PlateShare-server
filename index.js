@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
@@ -8,7 +9,8 @@ app.use(express.json());
 
 const port = process.env.PORT || 5000;
 
-const uri = "mongodb+srv://PlateShareDB:QtW2oIH3dzxY7t2G@cluster0.eclygum.mongodb.net/?appName=Cluster0";
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.eclygum.mongodb.net/?appName=Cluster0`;
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -21,13 +23,14 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
-        console.log("✅ MongoDB Connected Successfully");
+        console.log(" MongoDB Connected Successfully");
 
         const DB = client.db("PlateShareDB");
         const foodCollection = DB.collection("foods");
         const requestedFoodCollection = DB.collection("requested_foods");
+        const foodRequestCollection = DB.collection("food_requests"); // 
 
-        /* ----------------------------- HOME FOODS ----------------------------- */
+
 
         // Add food for Home Page
         app.post("/home_foods", async (req, res) => {
@@ -72,7 +75,7 @@ async function run() {
             }
         });
 
-        /* ----------------------------- AVAILABLE FOODS ----------------------------- */
+
 
         // Get single food by ID
         app.get("/available_foods/:id", async (req, res) => {
@@ -147,7 +150,7 @@ async function run() {
 
 
 
-        // Request a food
+        // Request a food (basic)
         app.post("/requested_foods", async (req, res) => {
             try {
                 const { foodId, userEmail, foodName } = req.body;
@@ -179,6 +182,7 @@ async function run() {
             }
         });
 
+        // Delete requested food
         app.delete("/requested_foods/:id", async (req, res) => {
             try {
                 const id = req.params.id;
@@ -190,6 +194,90 @@ async function run() {
             }
         });
 
+
+
+        // Submit detailed food request (from modal)
+        app.post("/food_requests", async (req, res) => {
+            try {
+                const {
+                    foodId,
+                    userEmail,
+                    userName,
+                    userPhoto,
+                    location,
+                    reason,
+                    contactNo,
+                    foodName,
+                    foodImage,
+                    donatorName,
+                    donatorEmail,
+                    pickupLocation,
+                    expireDate,
+                    serves,
+                    category,
+                    foodQuantity
+                } = req.body;
+
+                if (!foodId || !userEmail || !location || !reason || !contactNo) {
+                    return res.status(400).send({ error: "Missing required fields" });
+                }
+
+                const newRequest = {
+                    foodId,
+                    userEmail,
+                    userName,
+                    userPhoto,
+                    location,
+                    reason,
+                    contactNo,
+                    foodName,
+                    foodImage,
+                    donatorName,
+                    donatorEmail,
+                    pickupLocation,
+                    expireDate,
+                    serves,
+                    category,
+                    foodQuantity,
+                    status: "Pending",
+                    createdAt: new Date(),
+                };
+
+                const result = await foodRequestCollection.insertOne(newRequest);
+                res.send(result);
+            } catch (err) {
+                res.status(500).send({ error: err.message });
+            }
+        });
+
+
+        // Get all food requests by user email
+        app.get("/food_requests", async (req, res) => {
+            try {
+                const email = req.query.email;
+                if (!email) {
+                    return res.status(400).send({ error: "Email query parameter is required" });
+                }
+
+                const query = { userEmail: email };
+                const result = await foodRequestCollection.find(query).toArray();
+                res.send(result);
+            } catch (err) {
+                res.status(500).send({ error: err.message });
+            }
+        });
+
+        // Delete a food request
+        app.delete("/food_requests/:id", async (req, res) => {
+            try {
+                const id = req.params.id;
+                const query = { _id: new ObjectId(id) };
+                const result = await foodRequestCollection.deleteOne(query);
+                res.send(result);
+            } catch (err) {
+                res.status(500).send({ error: err.message });
+            }
+        });
 
         app.get("/", (req, res) => {
             res.send("🍽️ PlateShare Server is Running Successfully!");
